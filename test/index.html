@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Element JS Test</title>
+        <script src="../element.js"></script>
+    </head>
+
+    <body>
+        <h1>Element JS Test</h1>
+        <hr>
+
+        <section>
+            <h2>Create Element</h2>
+            <hr>
+
+            <h3>list</h3>
+
+            <div id="demo-list"></div>
+
+            <script>
+                (function(E) {
+                    var container = document.getElementById('demo-list');
+                    var style = 'color: #999;';
+                    var todoList = E('ul.todo-list.my-list#my-list', [
+                        E('li.todo-item', {title: 'Item A', style: style}, ['Item A']),
+                        E('li.todo-item', {title: 'Item B', style: style}, ['Item B'])
+                    ]);
+                    container.appendChild(todoList);
+                })(E);
+            </script>
+
+            <hr>
+
+            <h3>loop</h3>
+
+            <div id="demo-loop"></div>
+
+            <script>
+                (function(E) {
+                    var container = document.getElementById('demo-loop');
+                    var list = [
+                        {text: 'Item A', value: 'A'},
+                        {text: 'Item B', value: 'B'}
+                    ];
+                    var ul = E('ul.list', [
+                        list.map(function(item) {
+                            return E('li.item', {title: item.value}, [item.text])
+                        })
+                    ]);
+                    container.appendChild(ul);
+                })(E);
+            </script>
+
+        </section>
+
+        <hr>
+
+        <section>
+            <h2>Utils</h2>
+            <hr>
+
+            <h3>replace(idOrEle, element)</h3>
+
+            <div id="replace"></div>
+
+            <script>
+                (function(E) {
+                    E.replace('replace', E('input', {type: 'text'}));
+                })(E);
+            </script>
+
+            <hr>
+
+            <h2>remove(idOrEle, fn)</h2>
+
+            <div id="remove"></div>
+
+            <script>
+                (function(E) {
+                    var list = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+                    E.replace('remove', E('ul#remove', [
+                        list.map(function(item) {
+                            return E('li', [item]);
+                        })
+                    ]));
+
+                    E.removeChildren('remove', function(child, index) {
+                        return index < 3;
+                    });
+                })(E);
+            </script>
+
+            <hr>
+
+            <h2>indexOf(idOrEle, child)</h2>
+
+            <div id="indexOf"></div>
+
+            <script>
+                (function(E) {
+                    var itemA = E('li', ['Item A']);
+                    var itemB = E('li', ['Item B']);
+                    var list = E('ul', [
+                        itemA,
+                        itemB
+                    ]);
+                    
+                    var index = E.indexOf(list, itemB);
+                    document.getElementById('indexOf').textContent = index;
+                })(E);
+            </script>
+
+            <hr>
+
+            <h2>show([display], collection)</h2>
+
+            <div id="show">
+                <div id="show-block" style="display:none;">show block</div>
+                <div id="show-flex" style="display:none;">show flex</div>
+                <div id="show-list">
+                    <div style="display:none;">A</div>
+                    <div style="display:none;">B</div>
+                </div>
+            </div>
+
+            <script>
+                (function(E) {
+                    var block = document.getElementById('show-block');
+                    var flex = document.getElementById('show-flex');
+                    var list = document.getElementById('show-list');
+
+                    E.show(block);
+                    E.show('flex', flex);
+                    E.show(list.children);
+                })(E);
+            </script>
+
+            <hr>
+
+            <h2>hide(collection)</h2>
+
+            <div id="hide">
+                <div id="hide-item-1">1</div>
+                <div id="hide-item-2">2</div>
+            </div>
+
+            <script>
+                (function(E) {
+                    var item1 = document.getElementById('hide-item-1');
+                    var item2 = document.getElementById('hide-item-2');
+                    E.hide([
+                        item1,
+                        item2
+                    ]);
+                })(E);
+            </script>
+
+        </section>
+
+    </body>
+</html>
