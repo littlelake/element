@@ -166,6 +166,7 @@
 
             <div id="todo-list"></div>
             <button id="add-btn">add</button>
+            <button id="console-btn">console.log(todoList.getItems())</button>
 
             <script>
                 (function(E) {
@@ -174,8 +175,9 @@
                     document.getElementById('add-btn').addEventListener('click', function() {
                         todoList.addItem('');
                     });
-
-                    console.log(todoList.getItems());
+                    document.getElementById('console-btn').addEventListener('click', function() {
+                        console.log(todoList.getItems());
+                    });
 
                     function TodoList(list) {
                         var todoList = E('ul.todo-list', [
