@@ -158,5 +158,78 @@
 
         </section>
 
+        <hr>
+
+        <section>
+            <h2>Component TodoList</h2>
+            <hr>
+
+            <div id="todo-list"></div>
+            <button id="add-btn">add</button>
+
+            <script>
+                (function(E) {
+                    var todoList = TodoList(['itemA', 'itemB']);
+                    E.replace('todo-list', todoList);
+                    document.getElementById('add-btn').addEventListener('click', function() {
+                        todoList.addItem('');
+                    });
+
+                    console.log(todoList.getItems());
+
+                    function TodoList(list) {
+                        var todoList = E('ul.todo-list', [
+                            list.map(TodoItem)
+                        ]);
+
+                        todoList.addItem = function(item) {
+                            todoList.appendChild(TodoItem(item));
+                        };
+
+                        todoList.getItems = function() {
+                            return Array.prototype.map.call(this.children, function(item) {
+                                return item.getValue();
+                            });
+                        };
+
+                        return todoList;
+                    }
+
+                    function TodoItem(item) {
+                        var itemInput = E('input.todo-item-input', {
+                            type: 'text',
+                            value: item,
+                            readOnly: true
+                        });
+                        var closeBtn = E('i.close-btn', ['x']);
+
+                        var todoItem = E('li.todo-item', [
+                            itemInput,
+                            closeBtn
+                        ]);
+
+                        closeBtn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            todoItem.remove();
+                        });
+
+                        itemInput.addEventListener('dblclick', function() {
+                            itemInput.readOnly = false;
+                            itemInput.focus();
+                        });
+                        itemInput.addEventListener('blur', function() {
+                            itemInput.readOnly = true;
+                        });
+
+                        todoItem.getValue = function() {
+                            return itemInput.value;
+                        };
+
+                        return todoItem;
+                    }
+                })(E);
+            </script>
+        </section>
+
     </body>
 </html>
