@@ -7,16 +7,48 @@ Provide minimal but useful functions to manipulating DOM.
     'use strict';
 
     var document = window.document;
+    var Element = window.Element;
+    var CustomEvent = window.CustomEvent;
 
     /**
-     * Create an element
+     * AdvancedElement constructor wrap.
+     */
+    function E(desc, attrs, children) {
+        return new AdvancedElement(desc, attrs, children);
+    }
+
+    /**
+     * @constructor
+     * @param {string|Element} desc - An element description. Format: <tagName><.class><#id>, such as 'ul.todo-list#my-list'.
+     * @param {Object} [attrs] - The attrs of element.
+     * @param {Array} [children] - The children of element.
+     * @returns {Element}
+     */
+    function AdvancedElement(desc, attrs, children) {
+        if (desc instanceof Element) {
+            this.ele = desc;
+        }
+        else if (desc[0] === '#') {
+            this.ele = document.querySelector(desc);
+        }
+        else if (desc[0] === '.') {
+            this.ele = document.querySelectorAll(desc);
+        }
+        else {
+            this.ele = createElement(desc, attrs, children);
+        }
+    }
+
+    /**
+     * Create an element.
      *
      * @param {string} desc - An element description. Format: <tagName><.class><#id>, such as 'ul.todo-list#my-list'.
      * @param {Object} [attrs] - The attrs of element.
      * @param {Array} [children] - The children of element.
      * @returns {Element}
+     * @private
      */
-    function E(desc, attrs, children) {
+    function createElement(desc, attrs, children) {
         if (attrs instanceof Array) {
             children = attrs;
             attrs = null;
@@ -138,6 +170,9 @@ Provide minimal but useful functions to manipulating DOM.
             else if (typeof child === 'number' || typeof child === 'boolean') {
                 ele.appendChild(document.createTextNode(child.toString()));
             }
+            else if (child instanceof AdvancedElement) {
+                ele.appendChild(child.ele);
+            }
             else {
                 ele.appendChild(child);
             }
@@ -169,130 +204,139 @@ Provide minimal but useful functions to manipulating DOM.
         return res;
     }
 
-    /**
-     * Get element by id or return element directly.
-     *
-     * @param {Element|string} idOrEle - id or element
-     * @returns {Element}
-     * @private
-     */
-    function getElement(idOrEle) {
-        if (idOrEle instanceof Element) {
-            return idOrEle;
-        }
-        else {
-            return document.getElementById(idOrEle);
-        }
-    }
+
+    // methods
 
     /**
-     * Utils
+     * Replace an element.
      *
-     * Provide useful functions to manipulating DOM.
+     * @example
+     *  E('#list').replace(E('ul.my-list'));
+     *
+     * @param {Element} element
+     * @returns {AdvancedElement}
      */
-    var Utils = {
-
-        /**
-         * Replace an element.
-         *
-         * @example
-         *  replace('list', E('ul.my-list'));
-         *
-         * @param {Element|string} idOrEle
-         * @param {Element} element
-         */
-        replace: function(idOrEle, element) {
-            var ele = getElement(idOrEle);
-            ele.parentNode.replaceChild(element, ele);
-        },
-
-        /**
-         * Remove children.
-         *
-         * @example
-         *  // all li that index lower than 3 will be removed
-         *  removeChildren('list', function(li, index) {
-         *      return index < 3;
-         *  });
-         * @param {Element|string} idOrEle
-         * @param {Function} fn - filter function
-         */
-        removeChildren: function(idOrEle, fn) {
-            var ele = getElement(idOrEle);
-            var removeList = [];
-            for (var i = 0; i < ele.children.length; i++) {
-                var res = fn(ele.children[i], i);
-                if (res) {
-                    removeList.push(ele.children[i]);
-                }
-            }
-
-            removeList.forEach(function(child) {
-                ele.removeChild(child);
-            });
-        },
-
-        /**
-         * Get index of parentNode.
-         *
-         * @example
-         *  indexOf('list', li);
-         * @param {Element|string} idOrEle - parent node
-         * @param {Element} child
-         * @return {number}
-         */
-        indexOf: function(idOrEle, child) {
-            var ele = getElement(idOrEle);
-            return Array.prototype.indexOf.call(ele.children, child);
-        },
-
-        /**
-         * Show element(s).
-         *
-         * @example
-         *  show(eleC);
-         *  show('flex', [eleA, eleB]);
-         * @param {string} [display] - default value is 'block'
-         * @param {Array|HTMLCollection|Element} - the element(s) to show
-         */
-        show: function(display, collection) {
-            if (typeof display !== 'string') {
-                collection = display;
-                display = 'block';
-            }
-
-            if (collection instanceof Element) {
-                collection = [collection];
-            }
-
-            for (var i = 0; i < collection.length; i++) {
-                collection[i].style.display = display;
-            }
-        },
-
-        /**
-         * Hide element(s).
-         *
-         * @example
-         *  hide(eleC);
-         *  hide([eleA, eleB]);
-         * @param {Array|HTMLCollection|Element} - the element(s) to hide
-         */
-        hide: function(collection) {
-            if (collection instanceof Element) {
-                collection = [collection];
-            }
-
-            for (var i = 0; i < collection.length; i++) {
-                collection[i].style.display = 'none';
-            }
-        }
+    AdvancedElement.prototype.replace = function(element) {
+        this.ele.parentNode.replaceChild(element, this.ele);
+        this.ele = element;
+        return this;
     };
 
-    for (var methodName in Utils) {
-        E[methodName] = Utils[methodName];
-    }
+    /**
+     * Remove children.
+     *
+     * @example
+     *  // all li that index lower than 3 will be removed
+     *  E('#list').removeChildren(function(li, index) {
+     *      return index < 3;
+     *  });
+     *
+     * @param {Function} fn - filter function
+     * @returns {AdvancedElement}
+     */
+    AdvancedElement.prototype.removeChildren = function(fn) {
+        var ele = this.ele;
+        var removeList = [];
+        for (var i = 0; i < ele.children.length; i++) {
+            var res = fn(ele.children[i], i);
+            if (res) {
+                removeList.push(ele.children[i]);
+            }
+        }
+
+        removeList.forEach(function(child) {
+            ele.removeChild(child);
+        });
+
+        return this;
+    };
+
+    /**
+     * Get index of parentNode.
+     *
+     * @example
+     *  E('#item').index();
+     * @returns {number}
+     */
+    AdvancedElement.prototype.index = function() {
+        return Array.prototype.indexOf.call(this.ele.parentNode.children, this.ele);
+    };
+
+    /**
+     * Show element.
+     *
+     * @example
+     *  E('#id').show();
+     *  E('#id').show('flex');
+     * @param {string} [display] - default value is 'block'
+     * @returns {AdvancedElement}
+     */
+    AdvancedElement.prototype.show = function(display) {
+        if (!display) {
+            display = 'block';
+        }
+        this.ele.style.display = display;
+        return this;
+    };
+
+    /**
+     * Hide element.
+     *
+     * @example
+     *  E('#id').hide();
+     * @returns {AdvancedElement}
+     */
+    AdvancedElement.prototype.hide = function() {
+        this.ele.style.display = 'none';
+        return this;
+    };
+
+    /**
+     * Emit a custom event.
+     *
+     * @example
+     *  E('#id').emit('window.confirm', 'Delete?', function(res) {
+     *      if (res) {
+     *          // do something
+     *      }
+     *  });
+     *
+     * @param {string} event - event name
+     * @param {Any} data
+     * @param {Function} callback
+     */
+    AdvancedElement.prototype.emit = function(event, data, callback) {
+        var ev = new CustomEvent(event, {
+            detail: {
+                data: data,
+                callback: callback
+            },
+            bubbles: true,
+            cancelable: true
+        });
+        this.ele.dispatchEvent(ev);
+    };
+
+    /**
+     * Add custom event handler.
+     *
+     * @example
+     *  E('#id').on('window.confirm', function(data, callback, e) {
+     *      e.stopPropagation();
+     *      res = confirm(data);
+     *      callback(res);
+     *  });
+     *
+     * @param {string} event - event name
+     * @param {Function} handler - event handler
+     */
+    AdvancedElement.prototype.on = function(event, handler) {
+        this.ele.addEventListener(event, function(e) {
+            handler(e.detail.data, e.detail.callback, e);
+        });
+    };
 
     window.E = E;
+    window.AdvancedElement = AdvancedElement;
 
 })(window);

@@ -233,5 +233,29 @@
             </script>
         </section>
 
+        <section>
+            <h2>Custom Event</h2>
+            <hr>
+
+            <div id="parent">
+                <button id="child">Click me</button>
+            </div>
+
+            <script>
+                (function(E) {
+                    E('#id')
+                    E.on('parent', 'window.confirm', function(data, callback) {
+                        callback(confirm(data));
+                    });
+                    document.getElementById('child').addEventListener('click', function() {
+                        E.emit('child', 'window.confirm', 'Sure?', function(res) {
+                            console.log(res);
+                        });
+                    });
+                })(E);
+            </script>
+
+        </section>
+
     </body>
 </html>
