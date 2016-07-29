@@ -22,17 +22,13 @@ Provide minimal but useful functions to manipulating DOM.
      * @param {string|Element} desc - An element description. Format: <tagName><.class><#id>, such as 'ul.todo-list#my-list'.
      * @param {Object} [attrs] - The attrs of element.
      * @param {Array} [children] - The children of element.
-     * @returns {Element}
      */
     function AdvancedElement(desc, attrs, children) {
         if (desc instanceof Element) {
             this.ele = desc;
         }
         else if (desc[0] === '#') {
-            this.ele = document.querySelector(desc);
-        }
-        else if (desc[0] === '.') {
-            this.ele = document.querySelectorAll(desc);
+            this.ele = document.getElementById(desc.slice(1));
         }
         else {
             this.ele = createElement(desc, attrs, children);
@@ -142,11 +138,10 @@ Provide minimal but useful functions to manipulating DOM.
         }
 
         if (attrs.style && typeof attrs.style === 'object') {
-            var styleStr = '';
             for (var key in attrs.style) {
-                styleStr += (key + ':' + attrs.style[key] + ';');
+                ele.style[key] = attrs.style[key];
             }
-            attrs.style = styleStr;
+            delete attrs.style;
         }
 
         for (var name in attrs) {
@@ -211,14 +206,34 @@ Provide minimal but useful functions to manipulating DOM.
      * Replace an element.
      *
      * @example
-     *  E('#list').replace(E('ul.my-list'));
+     *  E('#list').replaceWith(E('ul.my-list'));
      *
-     * @param {Element} element
+     * @param {Element|AdvancedElement} element
      * @returns {AdvancedElement}
      */
-    AdvancedElement.prototype.replace = function(element) {
+    AdvancedElement.prototype.replaceWith = function(element) {
+        if (element instanceof AdvancedElement) {
+            element = element.ele;
+        }
         this.ele.parentNode.replaceChild(element, this.ele);
         this.ele = element;
+        return this;
+    };
+
+    /**
+     * Append an element to it's children.
+     *
+     * @example
+     *  E('#list').append(E('li.item'));
+     *
+     * @param {Element|AdvancedElement} element
+     * @returns {AdvancedElement}
+     */
+    AdvancedElement.prototype.append = function(element) {
+        if (element instanceof AdvancedElement) {
+            element = element.ele;
+        }
+        this.ele.appendChild(element);
         return this;
     };
 
@@ -334,6 +349,18 @@ Provide minimal but useful functions to manipulating DOM.
         this.ele.addEventListener(event, function(e) {
             handler(e.detail.data, e.detail.callback, e);
         });
+    };
+
+    /**
+     * Add event listener.
+     * 
+     * @param {string} event - event name
+     * @param {Function} handler - event handler
+     * @returns {AdvancedElement}
+     */
+    AdvancedElement.prototype.listen = function(event, handler) {
+        this.ele.addEventListener(event, handler);
+        return this;
     };
 
     window.E = E;

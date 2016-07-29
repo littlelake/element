@@ -1,261 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>Element JS Test</title>
-        <script src="../element.js"></script>
-    </head>
 
-    <body>
-        <h1>Element JS Test</h1>
+<head>
+    <meta charset="utf-8">
+    <title>Element JS Test</title>
+</head>
+
+<body>
+    <h1>Element JS Test</h1>
+    <hr>
+
+    <section>
+        <h2>Testing Create Element</h2>
+        <hr>
+        <div id="testing-create-element"></div>
+    </section>
+    
+    <section>
+        <h2>Testing methods</h2>
         <hr>
 
-        <section>
-            <h2>Create Element</h2>
-            <hr>
+        <div class="test-item">
+            <h3>replaceWith</h3>
+            <div id="t-methods-replaceWith-0"></div>
+            <div id="t-methods-replaceWith-1"></div>
+        </div>
 
-            <h3>list</h3>
+        <div class="test-item">
+            <h3>append</h3>
+            <div id="t-methods-append-0"></div>
+            <div id="t-methods-append-1"></div>
+        </div>
 
-            <div id="demo-list"></div>
+        <div class="test-item">
+            <h3>removeChildren</h3>
+            <ul id="t-methods-removeChildren">
+                <li>0</li>
+                <li>1</li>
+                <li>2</li>
+                <li>3</li>
+                <li>4</li>
+                <li>5</li>
+            </ul>
+        </div>
 
-            <script>
-                (function(E) {
-                    var container = document.getElementById('demo-list');
-                    var style = 'color: #999;';
-                    var todoList = E('ul.todo-list.my-list#my-list', [
-                        E('li.todo-item', {title: 'Item A', style: style}, ['Item A']),
-                        E('li.todo-item', {title: 'Item B', style: style}, ['Item B'])
-                    ]);
-                    container.appendChild(todoList);
-                })(E);
-            </script>
+        <div class="test-item">
+            <h3>index</h3>
+            <ul>
+                <li>0</li>
+                <li>1</li>
+                <li id="t-methods-index">2</li>
+                <li>3</li>
+            </ul>
+        </div>
 
-            <hr>
+        <div class="test-item">
+            <h3>show</h3>
+            <div id="t-methods-show-0" style="display:none;">block</div>
+            <div id="t-methods-show-1" style="display:none;">flex</div>
+        </div>
 
-            <h3>loop</h3>
+        <div class="test-item">
+            <h3>hide</h3>
+            <div id="t-methods-hide">block</div>
+        </div>
 
-            <div id="demo-loop"></div>
-
-            <script>
-                (function(E) {
-                    var container = document.getElementById('demo-loop');
-                    var list = [
-                        {text: 'Item A', value: 'A'},
-                        {text: 'Item B', value: 'B'}
-                    ];
-                    var ul = E('ul.list', [
-                        list.map(function(item) {
-                            return E('li.item', {title: item.value}, [item.text])
-                        })
-                    ]);
-                    container.appendChild(ul);
-                })(E);
-            </script>
-
-        </section>
-
-        <hr>
-
-        <section>
-            <h2>Utils</h2>
-            <hr>
-
-            <h3>replace(idOrEle, element)</h3>
-
-            <div id="replace"></div>
-
-            <script>
-                (function(E) {
-                    E.replace('replace', E('input', {type: 'text'}));
-                })(E);
-            </script>
-
-            <hr>
-
-            <h2>remove(idOrEle, fn)</h2>
-
-            <div id="remove"></div>
-
-            <script>
-                (function(E) {
-                    var list = [0, 1, 2, 3, 4, 5, 6, 7, 8];
-                    E.replace('remove', E('ul#remove', [
-                        list.map(function(item) {
-                            return E('li', [item]);
-                        })
-                    ]));
-
-                    E.removeChildren('remove', function(child, index) {
-                        return index < 3;
-                    });
-                })(E);
-            </script>
-
-            <hr>
-
-            <h2>indexOf(idOrEle, child)</h2>
-
-            <div id="indexOf"></div>
-
-            <script>
-                (function(E) {
-                    var itemA = E('li', ['Item A']);
-                    var itemB = E('li', ['Item B']);
-                    var list = E('ul', [
-                        itemA,
-                        itemB
-                    ]);
-                    
-                    var index = E.indexOf(list, itemB);
-                    document.getElementById('indexOf').textContent = index;
-                })(E);
-            </script>
-
-            <hr>
-
-            <h2>show([display], collection)</h2>
-
-            <div id="show">
-                <div id="show-block" style="display:none;">show block</div>
-                <div id="show-flex" style="display:none;">show flex</div>
-                <div id="show-list">
-                    <div style="display:none;">A</div>
-                    <div style="display:none;">B</div>
-                </div>
+        <div class="test-item">
+            <h3>Event</h3>
+            <div id="t-methods-event-on">
+                <h4>Description:</h4>
+                <p id="t-methods-event-desc"></p>
+                <button id="t-methods-event-emit">Click me</button>
             </div>
+        </div>
 
-            <script>
-                (function(E) {
-                    var block = document.getElementById('show-block');
-                    var flex = document.getElementById('show-flex');
-                    var list = document.getElementById('show-list');
+    </section>
 
-                    E.show(block);
-                    E.show('flex', flex);
-                    E.show(list.children);
-                })(E);
-            </script>
+    <script src="../element.js"></script>
+    <script src="./test.js"></script>
 
-            <hr>
+</body>
 
-            <h2>hide(collection)</h2>
-
-            <div id="hide">
-                <div id="hide-item-1">1</div>
-                <div id="hide-item-2">2</div>
-            </div>
-
-            <script>
-                (function(E) {
-                    var item1 = document.getElementById('hide-item-1');
-                    var item2 = document.getElementById('hide-item-2');
-                    E.hide([
-                        item1,
-                        item2
-                    ]);
-                })(E);
-            </script>
-
-        </section>
-
-        <hr>
-
-        <section>
-            <h2>Component TodoList</h2>
-            <hr>
-
-            <div id="todo-list"></div>
-            <button id="add-btn">add</button>
-            <button id="console-btn">console.log(todoList.getItems())</button>
-
-            <script>
-                (function(E) {
-                    var todoList = TodoList(['itemA', 'itemB']);
-                    E.replace('todo-list', todoList);
-                    document.getElementById('add-btn').addEventListener('click', function() {
-                        todoList.addItem('');
-                    });
-                    document.getElementById('console-btn').addEventListener('click', function() {
-                        console.log(todoList.getItems());
-                    });
-
-                    function TodoList(list) {
-                        var todoList = E('ul.todo-list', [
-                            list.map(TodoItem)
-                        ]);
-
-                        todoList.addItem = function(item) {
-                            todoList.appendChild(TodoItem(item));
-                        };
-
-                        todoList.getItems = function() {
-                            return Array.prototype.map.call(this.children, function(item) {
-                                return item.getValue();
-                            });
-                        };
-
-                        return todoList;
-                    }
-
-                    function TodoItem(item) {
-                        var itemInput = E('input.todo-item-input', {
-                            type: 'text',
-                            value: item,
-                            readOnly: true
-                        });
-                        var closeBtn = E('i.close-btn', ['x']);
-
-                        var todoItem = E('li.todo-item', [
-                            itemInput,
-                            closeBtn
-                        ]);
-
-                        closeBtn.addEventListener('click', function(e) {
-                            e.stopPropagation();
-                            todoItem.remove();
-                        });
-
-                        itemInput.addEventListener('dblclick', function() {
-                            itemInput.readOnly = false;
-                            itemInput.focus();
-                        });
-                        itemInput.addEventListener('blur', function() {
-                            itemInput.readOnly = true;
-                        });
-
-                        todoItem.getValue = function() {
-                            return itemInput.value;
-                        };
-
-                        return todoItem;
-                    }
-                })(E);
-            </script>
-        </section>
-
-        <section>
-            <h2>Custom Event</h2>
-            <hr>
-
-            <div id="parent">
-                <button id="child">Click me</button>
-            </div>
-
-            <script>
-                (function(E) {
-                    E('#id')
-                    E.on('parent', 'window.confirm', function(data, callback) {
-                        callback(confirm(data));
-                    });
-                    document.getElementById('child').addEventListener('click', function() {
-                        E.emit('child', 'window.confirm', 'Sure?', function(res) {
-                            console.log(res);
-                        });
-                    });
-                })(E);
-            </script>
-
-        </section>
-
-    </body>
 </html>
