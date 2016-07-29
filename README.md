@@ -19,7 +19,7 @@ E(desc, attrs, children)
 
 * __desc__ : string - An element description. Format: `<tagName><.class><#id>`, such as 'ul.todo-list#my-list'
 * __attrs__ : Object - The attrs
-* __children__ : Array<AdvancedElement|Element|Array<AdvancedElement|Element>> - The children of element.
+* __children__ : `Array<AdvancedElement|Element|Array<AdvancedElement|Element>>` - The children of element.
 
 __Notice__ : `E()` will return an instance of `AdvancedElement`.
 
