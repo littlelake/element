@@ -4,6 +4,7 @@ Provide minimal but useful functions to manipulating DOM.
 ## Contents
 * [Create Element](#create-element)
 * [Query Element](#query-element)
+* [Component Example](#component-example)
 * [Methods](#methods)
     * [replaceWith](#replacewith)
     * [append](#append)
@@ -12,6 +13,7 @@ Provide minimal but useful functions to manipulating DOM.
     * [show](#show)
     * [hide](#hide)
     * [Event](#event)
+    * [Define Method](#define-method)
 
 ## Create Element
 
@@ -48,6 +50,60 @@ E('ul.list.my-list#ce-f', {title: 'ul', style: 'font-size:18px; background:#eee;
 
 ```js
 E('#ident').show();
+```
+
+## Component Example
+TodoList component example:
+
+```js
+var todoList = TodoList([{text: 'Item A'}, {text: 'Item B'}]);
+console.log(todoList.getData());
+
+function TodoList(list) {
+    var todoList = E('ul.todo-list', [
+        list.map(TodoItem)
+    ]);
+    var input = E('input', {type: 'text'});
+    var addBtn = E('button', ['Add']);
+    var container = E('div.todo-list-container', [
+        todoList,
+        E('div.operate-panel', [
+            input,
+            addBtn
+        ])
+    ]);
+
+    addBtn.listen('click', function() {
+        todoList.append(TodoItem({text: input.ele.value}));
+        input.ele.value = '';
+    });
+
+    container.method('getData', function() {
+        return Array.prototype.map.call(todoList.ele.children, function(child) {
+            return {text: child.getValue()};
+        });
+    });
+
+    return container;
+}
+
+function TodoItem(item) {
+    var text = E('span', [item.text]);
+    var closeBtn = E('button', ['x']);
+    var todoItem = E('li.todo-item', [
+        text,
+        closeBtn
+    ]);
+    closeBtn.listen('click', function() {
+        todoItem.ele.remove();
+    });
+
+    todoItem.method('getValue', function() {
+        return text.ele.textContent;
+    });
+
+    return todoItem;
+}
 ```
 
 ## Methods
@@ -164,6 +220,19 @@ E('#edit-btn').listen('click', function() {
     });
 });
 ```
+
+### Define method
+Define method for itself and it's element.
+
+```js
+var h1 = E('h1', ['hello'])
+h1.method('getContent', function() {
+    return this.ele.textContent;
+});
+h1.getContent(); // 'hello'
+h1.ele.getContent(); // 'hello'
+```
+
 
 ## License
 [MIT](./LICENSE)

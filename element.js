@@ -168,7 +168,7 @@ Provide minimal but useful functions to manipulating DOM.
             else if (child instanceof AdvancedElement) {
                 ele.appendChild(child.ele);
             }
-            else {
+            else if (child instanceof Element) {
                 ele.appendChild(child);
             }
         });
@@ -353,13 +353,43 @@ Provide minimal but useful functions to manipulating DOM.
 
     /**
      * Add event listener.
-     * 
+     *
      * @param {string} event - event name
      * @param {Function} handler - event handler
      * @returns {AdvancedElement}
      */
     AdvancedElement.prototype.listen = function(event, handler) {
         this.ele.addEventListener(event, handler);
+        return this;
+    };
+
+    /**
+     * Define method for itself and it's element.
+     * 
+     * @example
+     *  var h1 = E('h1', ['hello'])
+     *  h1.method('getContent', function() {
+     *      return this.ele.textContent;
+     *  });
+     *  h1.getContent(); // 'hello'
+     *  h1.ele.getContent(); // 'hello'
+     *
+     * @param {string} name - method name
+     * @param {Function} fn
+     * @returns {AdvancedElement}
+     */
+    AdvancedElement.prototype.method = function(name, fn) {
+        if (this[name] || this.ele[name]) {
+            throw new Error('Already has method [' + name + ']');
+        }
+
+        var self = this;
+
+        this[name] = fn;
+        this.ele[name] = function() {
+            return fn.apply(self, arguments);
+        };
+
         return this;
     };
 

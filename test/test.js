@@ -73,6 +73,62 @@
 
     })();
 
+    // testing component
+    (function() {
+        var todoList = TodoList([]);
+        E('#t-todo-list').replaceWith(todoList);
+        E('#t-todo-list-log').listen('click', function() {
+            console.log(todoList.getData());
+        });
+
+        function TodoList(list) {
+            var todoList = E('ul.todo-list', [
+                list.map(TodoItem)
+            ]);
+            var input = E('input', {type: 'text'});
+            var addBtn = E('button', ['Add']);
+            var container = E('div.todo-list-container', [
+                todoList,
+                E('div.operate-panel', [
+                    input,
+                    addBtn
+                ])
+            ]);
+
+            addBtn.listen('click', function() {
+                todoList.append(TodoItem({text: input.ele.value}));
+                input.ele.value = '';
+            });
+
+            container.method('getData', function() {
+                return Array.prototype.map.call(todoList.ele.children, function(child) {
+                    return {text: child.getValue()};
+                });
+            });
+
+            return container;
+        }
+
+        function TodoItem(item) {
+            var text = E('span', [item.text]);
+            var closeBtn = E('button', ['x']);
+            var todoItem = E('li.todo-item', [
+                text,
+                closeBtn
+            ]);
+            closeBtn.listen('click', function() {
+                todoItem.ele.remove();
+            });
+
+            todoItem.method('getValue', function() {
+                return text.ele.textContent;
+            });
+
+            return todoItem;
+        }
+
+    })();
+
     // helper function
     function createTestElements(pid, prefix, count) {
         var parent = document.getElementById(pid);
