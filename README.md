@@ -60,21 +60,21 @@ var todoList = TodoList([{text: 'Item A'}, {text: 'Item B'}]);
 console.log(todoList.getData());
 
 function TodoList(list) {
-    var todoList, input, addBtn;
+    var todoList, input;
     var container = E('div.todo-list-container', [
         todoList = E('ul.todo-list', [
             list.map(TodoItem)
         ]),
         E('div.operate-panel', [
             input = E('input', {type: 'text'}),
-            addBtn = E('button', ['Add'])
+            E('button', {onClick: addItem}, ['Add'])
         ])
     ]);
 
-    addBtn.listen('click', function() {
+    function addItem() {
         todoList.append(TodoItem({text: input.ele.value}));
         input.ele.value = '';
-    });
+    }
 
     container.method('getData', function() {
         return Array.prototype.map.call(todoList.ele.children, function(child) {
@@ -86,14 +86,15 @@ function TodoList(list) {
 }
 
 function TodoItem(item) {
-    var text, closeBtn;
+    var text;
     var todoItem = E('li.todo-item', [
         text = E('span', [item.text]),
-        closeBtn = E('button', ['x'])
+        E('button', {onClick: remove}, ['x'])
     ]);
-    closeBtn.listen('click', function() {
+
+    function remove() {
         todoItem.ele.remove();
-    });
+    };
 
     todoItem.method('getValue', function() {
         return text.ele.textContent;

@@ -145,7 +145,13 @@ Provide minimal but useful functions to manipulating DOM.
         }
 
         for (var name in attrs) {
-            ele[name] = attrs[name];
+            if (name.indexOf('on') === 0) {
+                var ev = name.slice(2).toLowerCase();
+                ele.addEventListener(ev, attrs[name]);
+            }
+            else {
+                ele[name] = attrs[name];
+            }
         }
     }
 
