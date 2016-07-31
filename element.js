@@ -27,6 +27,9 @@ Provide minimal but useful functions to manipulating DOM.
         if (desc instanceof Element) {
             this.ele = desc;
         }
+        else if (desc instanceof AdvancedElement) {
+            this.ele = desc.ele;
+        }
         else if (desc[0] === '#') {
             this.ele = document.getElementById(desc.slice(1));
         }
@@ -176,6 +179,9 @@ Provide minimal but useful functions to manipulating DOM.
             }
             else if (child instanceof Element) {
                 ele.appendChild(child);
+            }
+            else if (child instanceof HTMLNode) {
+                ele.insertAdjacentHTML('beforeend', child.html);
             }
         });
     }
@@ -371,7 +377,7 @@ Provide minimal but useful functions to manipulating DOM.
 
     /**
      * Define method for itself and it's element.
-     * 
+     *
      * @example
      *  var h1 = E('h1', ['hello'])
      *  h1.method('getContent', function() {
@@ -397,6 +403,52 @@ Provide minimal but useful functions to manipulating DOM.
         };
 
         return this;
+    };
+
+    // Utils
+
+    /**
+     * Only use in `E()`
+     *
+     * @example
+     *  E('div', [E.HTML('&times;')]); // <div>×</div>
+     *
+     * @param {string} html - html string
+     * @returns {HTMLNode}
+     */
+    E.HTML = function(html) {
+        return new HTMLNode(html);
+    };
+
+    function HTMLNode(html) {
+        this.html = html;
+    }
+
+    /**
+     * Show elements.
+     *
+     * @param {string} [display]
+     * @param {Array|NodeList|HTMLCollection}
+     */
+    E.show = function(display, collection) {
+        if (typeof display !== 'string') {
+            collection = display;
+            display = 'block';
+        }
+        Array.prototype.forEach.call(collection, function(ele) {
+            E(ele).show(display);
+        });
+    };
+
+    /**
+     * Hide elements.
+     *
+     * @param {Array|NodeList|HTMLCollection}
+     */
+    E.hide = function(collection) {
+        Array.prototype.forEach.call(collection, function(ele) {
+            E(ele).hide();
+        });
     };
 
     window.E = E;

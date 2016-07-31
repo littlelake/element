@@ -14,6 +14,10 @@ Provide minimal but useful functions to manipulating DOM.
     * [hide](#hide)
     * [Event](#event)
     * [Define Method](#define-method)
+* [Utils](#utils)
+    * [HTML](#html)
+    * [show](#show-elements)
+    * [hide](#hide-elements)
 
 ## Create Element
 
@@ -89,7 +93,7 @@ function TodoItem(item) {
     var text;
     var todoItem = E('li.todo-item', [
         text = E('span', [item.text]),
-        E('button', {onClick: remove}, ['x'])
+        E('button', {onClick: remove}, [E.HTML('&times;')])
     ]);
 
     function remove() {
@@ -231,6 +235,40 @@ h1.getContent(); // 'hello'
 h1.ele.getContent(); // 'hello'
 ```
 
+## Utils
+
+### HTML
+E.HTML(htmlStr)
+
+```js
+var closeBtn = E('button.close-btn', [E.HTML('&times;')]);
+// <button class="close-btn">×</button>
+```
+
+### show elements
+E.show([display], collection)
+
+```js
+E.show('flex', document.querySelector('.flex'));
+
+var btnGroup = document.getElementById('btn-group');
+E.show('inline-block', btnGroup.children);
+
+E.show([
+    E('div'),
+    document.getElementById('container')
+]);
+```
+
+### hide elements
+E.hide(collection)
+
+```js
+E.hide([
+    E('#close-btn'),
+    document.getElementById('msg')
+]);
+```
 
 ## License
 [MIT](./LICENSE)

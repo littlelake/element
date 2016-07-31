@@ -111,7 +111,7 @@
             var text;
             var todoItem = E('li.todo-item', [
                 text = E('span', [item.text]),
-                E('button', {onClick: remove}, ['x'])
+                E('button', {onClick: remove}, [E.HTML('&times;')])
             ]);
 
             function remove() {
@@ -124,6 +124,19 @@
 
             return todoItem;
         }
+
+    })();
+
+    // testing utils
+    (function() {
+        // E.HTML
+        E('#t-utils-html').append(E('button', [E.HTML('&times;')]));
+
+        // E.show
+        E.show('inline-block', document.querySelectorAll('#t-utils-show .btn'));
+
+        // E.hide
+        E.hide(document.querySelectorAll('#t-utils-hide .btn'));
 
     })();
 
