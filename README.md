@@ -1,10 +1,14 @@
 # Element JS
-Provide minimal but useful functions to manipulating DOM.
+Provide minimal but useful functions to manipulate DOM and make component easily.
+
+## Feature
+* Light weight.
+* Modularization.
 
 ## Contents
 * [Create Element](#create-element)
 * [Query Element](#query-element)
-* [Component Example](#component-example)
+* [Component](#component)
 * [Methods](#methods)
     * [replaceWith](#replacewith)
     * [append](#append)
@@ -19,6 +23,7 @@ Provide minimal but useful functions to manipulating DOM.
     * [show](#show-elements)
     * [hide](#hide-elements)
     * [Local Scope CSS](#local-scope-css)
+    * [Module](#module)
 
 ## Create Element
 
@@ -57,69 +62,8 @@ E('ul.list.my-list#ce-f', {title: 'ul', style: 'font-size:18px; background:#eee;
 E('#ident').show();
 ```
 
-## Component Example
-TodoList component example:
-
-```js
-var style = E.style(function() {
-    /*
-        @css
-        .input {
-            width: 200px;
-            line-heght: 30px;
-            font-size: 18px;
-            border: 2px solid #ccc;
-        }
-    */
-});
-
-function TodoItem(item) {
-    var text;
-    var todoItem = E('li.todo-item', [
-        text = E('span', [item.text]),
-        E('button', {onClick: remove}, [E.HTML('&times;')])
-    ]);
-
-    function remove() {
-        todoItem.ele.remove();
-    };
-
-    todoItem.method('getValue', function() {
-        return text.ele.textContent;
-    });
-
-    return todoItem;
-}
-
-function TodoList(list) {
-    var todoList, input;
-    var container = E('div.todo-list-container', [
-        todoList = E('ul.todo-list', [
-            list.map(TodoItem)
-        ]),
-        E('div.operate-panel', [
-            input = E('input', {type: 'text', class: style('input')}),
-            E('button', {onClick: addItem}, ['Add'])
-        ])
-    ]);
-
-    function addItem() {
-        todoList.append(TodoItem({text: input.ele.value}));
-        input.ele.value = '';
-    }
-
-    container.method('getData', function() {
-        return Array.prototype.map.call(todoList.ele.children, function(child) {
-            return {text: child.getValue()};
-        });
-    });
-
-    return container;
-}
-
-var todoList = TodoList([{text: 'Item A'}, {text: 'Item B'}]);
-console.log(todoList.getData());
-```
+## Component
+See [demo](./example/todo-list).
 
 ## Methods
 
@@ -315,6 +259,28 @@ document.body.appendChild(btn.ele);
 </body>
 </html>
 */
+```
+
+### Module
+Define a module:
+
+```js
+E.mod('greet', function() {
+    return function(name) {
+        console.log('Hello, ' + name + '!');
+    };
+});
+
+E.mod('main', ['greet'], function(greet) {
+    greet('world');
+});
+
+```
+
+Then run the main module:
+
+```js
+E.run('main'); // 'Hello, world!'
 ```
 
 ## License

@@ -11,7 +11,8 @@ Provide minimal but useful functions to manipulating DOM.
     var CustomEvent = window.CustomEvent;
 
     var g = {
-        styleSuffixCurrentId: 0
+        styleSuffixCurrentId: 0,
+        modules: {}
     };
 
     /**
@@ -470,8 +471,8 @@ Provide minimal but useful functions to manipulating DOM.
         g.styleSuffixCurrentId += 1;
         var suffix = g.styleSuffixCurrentId.toString();
 
-        css = css.replace(/(\.[\w\-]+)/g, '$1__' + suffix);
-        
+        css = css.replace(/(\.[\w\-]+)(.*?\{)/g, '$1__' + suffix + '$2');
+
         var style = document.createElement('style');
         style.innerHTML = css;
         document.head.appendChild(style);
@@ -481,6 +482,60 @@ Provide minimal but useful functions to manipulating DOM.
                 return className + '__' + suffix;
             }).join(' ');
         };
+    };
+
+    /**
+     * Define a module.
+     * @example
+     *  E.mod('me.TodoList', [
+     *      'me.TodoItem'
+     *  ], function(TodoItem) {
+     *      // todo
+     *  });
+     * @param {string} name - module name
+     * @param {Array<string>} [deps] - dependencies
+     * @param {Function} def - module define function
+     */
+    E.mod = function(name, deps, def) {
+        if (typeof deps === 'function') {
+            def = deps;
+            deps = [];
+        }
+
+        g.modules[name] = {
+            deps: deps,
+            def: def,
+            res: null,
+            init: false
+        };
+    };
+
+    /**
+     * Run a module.
+     *
+     * @param {string} name
+     */
+    E.run = function run(name) {
+        var mod = g.modules[name];
+        if (!mod) {
+            return;
+        }
+
+        if (mod.init) {
+            return mod.res;
+        }
+        else {
+            if (mod.deps.length > 0) {
+                var deps = mod.deps.map(run);
+                mod.res = mod.def.apply(null, deps);
+                mod.init = true;
+            }
+            else {
+                mod.res = mod.def();
+                mod.init = true;
+            }
+            return mod.res;
+        }
     };
 
     window.E = E;
