@@ -18,6 +18,7 @@ Provide minimal but useful functions to manipulating DOM.
     * [HTML](#html)
     * [show](#show-elements)
     * [hide](#hide-elements)
+    * [Local Scope CSS](#local-scope-css)
 
 ## Create Element
 
@@ -60,34 +61,17 @@ E('#ident').show();
 TodoList component example:
 
 ```js
-var todoList = TodoList([{text: 'Item A'}, {text: 'Item B'}]);
-console.log(todoList.getData());
-
-function TodoList(list) {
-    var todoList, input;
-    var container = E('div.todo-list-container', [
-        todoList = E('ul.todo-list', [
-            list.map(TodoItem)
-        ]),
-        E('div.operate-panel', [
-            input = E('input', {type: 'text'}),
-            E('button', {onClick: addItem}, ['Add'])
-        ])
-    ]);
-
-    function addItem() {
-        todoList.append(TodoItem({text: input.ele.value}));
-        input.ele.value = '';
-    }
-
-    container.method('getData', function() {
-        return Array.prototype.map.call(todoList.ele.children, function(child) {
-            return {text: child.getValue()};
-        });
-    });
-
-    return container;
-}
+var style = E.style(function() {
+    /*
+        @css
+        .input {
+            width: 200px;
+            line-heght: 30px;
+            font-size: 18px;
+            border: 2px solid #ccc;
+        }
+    */
+});
 
 function TodoItem(item) {
     var text;
@@ -106,6 +90,35 @@ function TodoItem(item) {
 
     return todoItem;
 }
+
+function TodoList(list) {
+    var todoList, input;
+    var container = E('div.todo-list-container', [
+        todoList = E('ul.todo-list', [
+            list.map(TodoItem)
+        ]),
+        E('div.operate-panel', [
+            input = E('input', {type: 'text', class: style('input')}),
+            E('button', {onClick: addItem}, ['Add'])
+        ])
+    ]);
+
+    function addItem() {
+        todoList.append(TodoItem({text: input.ele.value}));
+        input.ele.value = '';
+    }
+
+    container.method('getData', function() {
+        return Array.prototype.map.call(todoList.ele.children, function(child) {
+            return {text: child.getValue()};
+        });
+    });
+
+    return container;
+}
+
+var todoList = TodoList([{text: 'Item A'}, {text: 'Item B'}]);
+console.log(todoList.getData());
 ```
 
 ## Methods
@@ -268,6 +281,40 @@ E.hide([
     E('#close-btn'),
     document.getElementById('msg')
 ]);
+```
+
+### Local Scope CSS
+E.style(def)
+
+You could create local scope CSS:
+
+```js
+var style = E.style(function() {
+    /*
+    @css
+    .btn {}
+    .btn-ok {}
+    */
+});
+
+var btn = E('button', {class: style('btn btn-ok')}, ['ok']);
+document.body.appendChild(btn.ele);
+
+// ElementJS will append style tag to head and add suffix:
+/*
+<html>
+<head>
+    ...
+    <style>
+        .btn__1 {}
+        .btn-ok__1 {}
+    </style>
+</head>
+<body>
+    <button class="btn__1 btn-ok__1">ok</button>
+</body>
+</html>
+*/
 ```
 
 ## License

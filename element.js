@@ -10,6 +10,10 @@ Provide minimal but useful functions to manipulating DOM.
     var Element = window.Element;
     var CustomEvent = window.CustomEvent;
 
+    var g = {
+        styleSuffixCurrentId: 0
+    };
+
     /**
      * AdvancedElement constructor wrap.
      */
@@ -449,6 +453,34 @@ Provide minimal but useful functions to manipulating DOM.
         Array.prototype.forEach.call(collection, function(ele) {
             E(ele).hide();
         });
+    };
+
+    /**
+     * Create local style.
+     */
+    E.style = function(def) {
+        var css = def.toString().match(/\/\*([\s\S]*?)\*\//m)[1] || '';
+
+        var tabs = css.match(/\n([\s]*)\@css/m)[1] || '';
+        if (tabs !== '') {
+            css = css.replace(new RegExp(tabs, 'g'), '');
+        }
+        css = css.replace('@css\n', '');
+
+        g.styleSuffixCurrentId += 1;
+        var suffix = g.styleSuffixCurrentId.toString();
+
+        css = css.replace(/(\.[\w\-]+)/g, '$1__' + suffix);
+        
+        var style = document.createElement('style');
+        style.innerHTML = css;
+        document.head.appendChild(style);
+
+        return function(classes) {
+            return classes.split(/[\s]+/).map(function(className) {
+                return className + '__' + suffix;
+            }).join(' ');
+        };
     };
 
     window.E = E;

@@ -75,37 +75,17 @@
 
     // testing component
     (function() {
-        var todoList = TodoList([]);
-        E('#t-todo-list').replaceWith(todoList);
-        E('#t-todo-list-log').listen('click', function() {
-            console.log(todoList.getData());
+        var style = E.style(function() {
+            /*
+                @css
+                .input {
+                    width: 200px;
+                    line-heght: 30px;
+                    font-size: 18px;
+                    border: 2px solid #ccc;
+                }
+            */
         });
-
-        function TodoList(list) {
-            var todoList, input;
-            var container = E('div.todo-list-container', [
-                todoList = E('ul.todo-list', [
-                    list.map(TodoItem)
-                ]),
-                E('div.operate-panel', [
-                    input = E('input', {type: 'text'}),
-                    E('button', {onClick: addItem}, ['Add'])
-                ])
-            ]);
-
-            function addItem() {
-                todoList.append(TodoItem({text: input.ele.value}));
-                input.ele.value = '';
-            }
-
-            container.method('getData', function() {
-                return Array.prototype.map.call(todoList.ele.children, function(child) {
-                    return {text: child.getValue()};
-                });
-            });
-
-            return container;
-        }
 
         function TodoItem(item) {
             var text;
@@ -124,6 +104,38 @@
 
             return todoItem;
         }
+
+        function TodoList(list) {
+            var todoList, input;
+            var container = E('div.todo-list-container', [
+                todoList = E('ul.todo-list', [
+                    list.map(TodoItem)
+                ]),
+                E('div.operate-panel', [
+                    input = E('input', {type: 'text', class: style('input')}),
+                    E('button', {onClick: addItem}, ['Add'])
+                ])
+            ]);
+
+            function addItem() {
+                todoList.append(TodoItem({text: input.ele.value}));
+                input.ele.value = '';
+            }
+
+            container.method('getData', function() {
+                return Array.prototype.map.call(todoList.ele.children, function(child) {
+                    return {text: child.getValue()};
+                });
+            });
+
+            return container;
+        }
+
+        var todoList = TodoList([]);
+        E('#t-todo-list').replaceWith(todoList);
+        E('#t-todo-list-log').listen('click', function() {
+            console.log(todoList.getData());
+        });
 
     })();
 
