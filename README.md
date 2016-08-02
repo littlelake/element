@@ -242,7 +242,7 @@ var c = E.css({
         display: 'block',
         margin: {
             left: 'auto',
-            right: 'auto
+            right: 'auto'
         }
     },
     btnOk: {
