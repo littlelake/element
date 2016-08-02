@@ -36,7 +36,10 @@ E.mod('TodoList', [
             border: 'none',
             outline: 'none',
             color: 'white',
-            backgroundColor: '#2d89ef'
+            backgroundColor: '#2d89ef',
+            ':disabled': {
+                color: '#ccc'
+            }
         }
     });
 

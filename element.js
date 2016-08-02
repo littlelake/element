@@ -467,7 +467,7 @@ Provide minimal but useful functions to manipulating DOM.
         var suffix = g.styleSuffix();
         var css = '';
         for (var name in cssObj) {
-            css += parseCssObject(name, suffix, cssObj[name]);
+            css += parseCssObject(name, suffix, cssObj[name]).join('');
         }
 
         var style = document.createElement('style');
@@ -508,12 +508,31 @@ Provide minimal but useful functions to manipulating DOM.
     }
 
     function parseCssObject(name, suffix, obj) {
+        var res = [];
         var className = humpToMinus(name) + '__' + suffix;
+
         var content = '';
         for (var key in obj) {
-            content += parseCssRule(key, obj[key]);
+            if (key[0] === ':') {
+                res.push('.' + className + parseCssObject(key, suffix, obj[key])[0]);
+            }
+            else {
+                content += parseCssRule(key, obj[key]);
+            }
         }
-        return '.' + className + '{' + content + '}';
+
+        if (name[0] === ':') {
+            res.push(name + '{' + content + '}');
+        }
+        else {
+            res.push('.' + className + '{' + content + '}');
+        }
+
+        if (res.length > 1) {
+            res.reverse();
+        }
+
+        return res;
     }
     // end of css helper functions
 
