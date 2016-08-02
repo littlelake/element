@@ -228,17 +228,23 @@ E.hide([
 ```
 
 ### Local Scope CSS
-E.style(def)
+E.css(cssObj)
 
-You could create local scope CSS:
+You could create local scope CSS(only support no nested class rules):
 
 ```js
-var style = E.style(function() {
-    /*
-    @css
-    .btn {}
-    .btn-ok {}
-    */
+var c = E.css({
+    btn: {
+        display: 'block',
+        margin: {
+            left: 'auto',
+            right: 'auto
+        }
+    },
+    btnOk: {
+        color: 'white',
+        backgroundColor: '#2d89ef'
+    }
 });
 
 var btn = E('button', {class: style('btn btn-ok')}, ['ok']);
@@ -250,8 +256,7 @@ document.body.appendChild(btn.ele);
 <head>
     ...
     <style>
-        .btn__1 {}
-        .btn-ok__1 {}
+        .btn__1{display:block;margin-left:auto;margin-right:auto;}.btn-ok__1{color:white;background-color:#2d89ef;}
     </style>
 </head>
 <body>

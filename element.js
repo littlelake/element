@@ -11,7 +11,11 @@ Provide minimal but useful functions to manipulating DOM.
     var CustomEvent = window.CustomEvent;
 
     var g = {
-        styleSuffixCurrentId: 0,
+        _suffixCurrentId: 0,
+        styleSuffix: function() {
+            this._suffixCurrentId += 1;
+            return this._suffixCurrentId;
+        },
         modules: {}
     };
 
@@ -457,21 +461,14 @@ Provide minimal but useful functions to manipulating DOM.
     };
 
     /**
-     * Create local style.
+     * Create local scope style.
      */
-    E.style = function(def) {
-        var css = def.toString().match(/\/\*([\s\S]*?)\*\//m)[1] || '';
-
-        var tabs = css.match(/\n([\s]*)\@css/m)[1] || '';
-        if (tabs !== '') {
-            css = css.replace(new RegExp(tabs, 'g'), '');
+    E.css = function(cssObj) {
+        var suffix = g.styleSuffix();
+        var css = '';
+        for (var name in cssObj) {
+            css += parseCssObject(name, suffix, cssObj[name]);
         }
-        css = css.replace('@css\n', '');
-
-        g.styleSuffixCurrentId += 1;
-        var suffix = g.styleSuffixCurrentId.toString();
-
-        css = css.replace(/(\.[\w\-]+)(.*?\{)/g, '$1__' + suffix + '$2');
 
         var style = document.createElement('style');
         style.innerHTML = css;
@@ -483,6 +480,43 @@ Provide minimal but useful functions to manipulating DOM.
             }).join(' ');
         };
     };
+
+    // css helper functions
+    function humpToMinus(str) {
+        return str.replace(/([A-Z])/g, '-$1').toLowerCase();
+    }
+
+    function parseCssRule(key, value) {
+        var ruleName = humpToMinus(key);
+
+        switch (typeof value) {
+            case 'number':
+            case 'boolean':
+                value = value.toString();
+                // waterfall
+            case 'string':
+                return ruleName + ':' + value + ';';
+            case 'object':
+                var rules = '';
+                for (var name in value) {
+                    rules += ruleName + '-' + parseCssRule(name, value[name]);
+                }
+                return rules;
+            default:
+                return '';
+        }
+    }
+
+    function parseCssObject(name, suffix, obj) {
+        var className = humpToMinus(name) + '__' + suffix;
+        var content = '';
+        for (var key in obj) {
+            content += parseCssRule(key, obj[key]);
+        }
+        return '.' + className + '{' + content + '}';
+    }
+    // end of css helper functions
+
 
     /**
      * Define a module.

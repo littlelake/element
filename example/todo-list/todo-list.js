@@ -2,40 +2,42 @@ E.mod('TodoList', [
     'TodoItem'
 ], function(TodoItem) {
     'use strict';
-
-    var c = E.style(function() {
-        /*
-        @css
-        .container {
-            position: relative;
-            padding: 15px;
-            border: 1px solid #ccc;
-            margin-bottom: 20px;
+    
+    var c = E.css({
+        container: {
+            position: 'relative',
+            padding: '15px',
+            border: '1px solid #ccc',
+            marginBottom: '20px'
+        },
+        todoList: {
+            position: 'relative',
+            margin: 0,
+            padding: 0,
+            listStyle: 'none'
+        },
+        operatePanel: {
+            display: 'flex'
+        },
+        input: {
+            padding: {
+                left: '15px',
+                right: '15px'
+            },
+            boxSizing: 'border-box',
+            border: '2px solid #2d89ef',
+            height: '40px',
+            fontSize: '16px',
+            flex: 1
+        },
+        addBtn: {
+            width: '100px',
+            height: '40px',
+            border: 'none',
+            outline: 'none',
+            color: 'white',
+            backgroundColor: '#2d89ef'
         }
-        .todo-list {
-            position: relative;
-            margin: 0;
-            padding: 0;
-            list-style: none;
-        }
-        .operate-panel {display: flex;}
-        .input {
-            padding-left: 15px;
-            box-sizing: border-box;
-            border: 2px solid #2d89ef;
-            height: 40px;
-            font-size: 16px;
-            flex: 1;
-        }
-        .add-btn {
-            width: 100px;
-            height: 40px;
-            border: none;
-            outline: none;
-            color: white;
-            background-color: #2d89ef;
-        }
-        */
     });
 
     function TodoList(list) {
