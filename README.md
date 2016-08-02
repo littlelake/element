@@ -3,7 +3,11 @@ Provide minimal but useful functions to manipulate DOM and make component easily
 
 ## Feature
 * Light weight.
+* High performance, 100% javascript, no need to parse template.
 * Modularization.
+* Support local scope CSS.
+* No need to build, just include module files even unsorted.
+* Easy to deploy, just concat and compress files.
 
 ## Contents
 * [Create Element](#create-element)
@@ -63,7 +67,7 @@ E('#ident').show();
 ```
 
 ## Component
-See [demo](./example/todo-list).
+See [todo list example](./example/todo-list).
 
 ## Methods
 
