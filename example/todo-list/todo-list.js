@@ -72,7 +72,7 @@ E.mod('TodoList', [
 
         container.method('getData', function() {
             return Array.prototype.map.call(todoList.ele.children, function(child) {
-                return {text: child.getValue()};
+                return {text: E(child).getValue()};
             });
         });
 

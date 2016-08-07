@@ -35,6 +35,11 @@ Provide minimal but useful functions to manipulating DOM.
     function AdvancedElement(desc, attrs, children) {
         if (desc instanceof Element) {
             this.ele = desc;
+            if (this.ele._methods) {
+                for (var name in this.ele._methods) {
+                    this[name] = this.ele._methods[name];
+                }
+            }
         }
         else if (desc instanceof AdvancedElement) {
             this.ele = desc.ele;
@@ -400,14 +405,17 @@ Provide minimal but useful functions to manipulating DOM.
      * @returns {AdvancedElement}
      */
     AdvancedElement.prototype.method = function(name, fn) {
-        if (this[name] || this.ele[name]) {
+        if (this[name] || (this.ele._methods && this.ele._methods[name])) {
             throw new Error('Already has method [' + name + ']');
         }
 
         var self = this;
 
         this[name] = fn;
-        this.ele[name] = function() {
+        if (!this.ele._methods) {
+            this.ele._methods = {};
+        }
+        this.ele._methods[name] = function() {
             return fn.apply(self, arguments);
         };
 

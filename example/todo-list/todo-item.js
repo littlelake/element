@@ -8,7 +8,7 @@ E.mod('TodoItem', function() {
             marginBottom: '15px',
             padding: '15px',
             backgroundColor: 'white',
-            boxShandow: 'rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.117647) 0px 1px 4px'
+            boxShadow: 'rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.117647) 0px 1px 4px'
         },
         text: {
             color: '#1a1a1a',
