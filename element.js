@@ -406,7 +406,7 @@ Provide minimal but useful functions to manipulating DOM.
      */
     AdvancedElement.prototype.method = function(name, fn) {
         if (this[name] || (this.ele._methods && this.ele._methods[name])) {
-            throw new Error('Already has method [' + name + ']');
+            console.warn(this, 'Already has method [' + name + ']');
         }
 
         var self = this;
