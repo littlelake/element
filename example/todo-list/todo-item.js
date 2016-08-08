@@ -29,11 +29,11 @@ E.mod('TodoItem', function() {
         }
     });
 
-    function TodoItem(item) {
+    var TodoItem = E.defCom(c, function(item) {
         var text;
-        var todoItem = E('li', {class: c('item')}, [
-            text = E('span', {class: c('text')}, [item.text]),
-            E('button', {onClick: remove, class: c('close-btn')}, [E.HTML('&times;')])
+        var todoItem = E('li.item', [
+            text = E('span.text', [item.text]),
+            E('button.close-btn', {onClick: remove}, [E.HTML('&times;')])
         ]);
 
         function remove() {
@@ -45,7 +45,7 @@ E.mod('TodoItem', function() {
         });
 
         return todoItem;
-    }
+    });
 
     return TodoItem;
 

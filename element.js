@@ -16,7 +16,8 @@ Provide minimal but useful functions to manipulating DOM.
             this._suffixCurrentId += 1;
             return this._suffixCurrentId;
         },
-        modules: {}
+        modules: {},
+        localCssFn: null
     };
 
     /**
@@ -75,6 +76,9 @@ Provide minimal but useful functions to manipulating DOM.
         }
         if (info.classList) {
             info.classList.forEach(function(cssClass) {
+                if (g.localCssFn) {
+                    cssClass = g.localCssFn(cssClass);
+                }
                 ele.classList.add(cssClass);
             });
         }
@@ -474,8 +478,10 @@ Provide minimal but useful functions to manipulating DOM.
     E.css = function(cssObj) {
         var suffix = g.styleSuffix();
         var css = '';
+        var classes = [];
         for (var name in cssObj) {
             css += parseCssObject(name, suffix, cssObj[name]).join('');
+            classes.push(name);
         }
 
         var style = document.createElement('style');
@@ -484,8 +490,23 @@ Provide minimal but useful functions to manipulating DOM.
 
         return function(classes) {
             return classes.split(/[\s]+/).map(function(className) {
-                return className + '__' + suffix;
+                if (classes.indexOf(className) > -1) {
+                    return className + '__' + suffix;
+                }
+                else {
+                    return className;
+                }
             }).join(' ');
+        };
+    };
+
+    E.defCom = function(localCssFn, def) {
+        return function() {
+            var lastFn = g.localCssFn;
+            g.localCssFn = localCssFn;
+            var res = def.apply(null, arguments);
+            g.localCssFn = lastFn;
+            return res;
         };
     };
 

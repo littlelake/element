@@ -43,15 +43,15 @@ E.mod('TodoList', [
         }
     });
 
-    function TodoList(list) {
+    var TodoList = E.defCom(c, function(list) {
         var todoList, input;
-        var container = E('div', {class: c('container')}, [
-            todoList = E('ul', {class: c('todo-list')}, [
+        var container = E('div.container', [
+            todoList = E('ul.todo-list', [
                 list.map(TodoItem)
             ]),
-            E('div', {class: c('operate-panel')}, [
-                input = E('input', {type: 'text', class: c('input'), onKeydown: onKeydown}),
-                E('button', {onClick: addItem, class: c('add-btn')}, ['Add'])
+            E('div.operate-panel', [
+                input = E('input.input', {type: 'text', onKeydown: onKeydown}),
+                E('button.add-btn', {onClick: addItem}, ['Add'])
             ])
         ]);
 
@@ -77,7 +77,7 @@ E.mod('TodoList', [
         });
 
         return container;
-    }
+    });
 
     return TodoList;
 

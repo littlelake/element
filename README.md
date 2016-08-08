@@ -254,6 +254,13 @@ var c = E.css({
 var btn = E('button', {class: c('btn btn-ok')}, ['ok']);
 document.body.appendChild(btn.ele);
 
+// or use a component define method:
+var OkBtn = E.def(c, function(text) {
+    return E('button.btn.btn-ok', [text]);
+});
+var btn = OkBtn('ok');
+document.body.appendChild(btn.ele);
+
 // ElementJS will append style tag to head and add suffix:
 /*
 <html>
