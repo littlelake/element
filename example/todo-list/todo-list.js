@@ -4,40 +4,38 @@ E.mod('TodoList', [
     'use strict';
     
     var c = E.css({
-        container: {
+        '.container': {
             position: 'relative',
             padding: '15px',
             border: '1px solid #ccc',
             marginBottom: '20px'
         },
-        todoList: {
+        '.todo-list': {
             position: 'relative',
             margin: 0,
             padding: 0,
             listStyle: 'none'
         },
-        operatePanel: {
+        '.operate-panel': {
             display: 'flex'
         },
-        input: {
-            padding: {
-                left: '15px',
-                right: '15px'
-            },
+        '.input': {
+            paddingLeft: '15px',
+            paddingRight: '15px',
             boxSizing: 'border-box',
             border: '2px solid #2d89ef',
             height: '40px',
             fontSize: '16px',
             flex: 1
         },
-        addBtn: {
+        '.add-btn': {
             width: '100px',
             height: '40px',
             border: 'none',
             outline: 'none',
             color: 'white',
             backgroundColor: '#2d89ef',
-            ':disabled': {
+            '&:disabled': {
                 color: '#ccc'
             }
         }

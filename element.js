@@ -14,7 +14,7 @@ Provide minimal but useful functions to manipulating DOM.
         _suffixCurrentId: 0,
         styleSuffix: function() {
             this._suffixCurrentId += 1;
-            return this._suffixCurrentId;
+            return '__' + this._suffixCurrentId;
         },
         modules: {},
         localCssFn: null
@@ -473,33 +473,12 @@ Provide minimal but useful functions to manipulating DOM.
     };
 
     /**
-     * Create local scope style.
+     * Define component.
+     *
+     * @param {Function} localCssFn - a function that add suffix to css class
+     * @param {Function} def - component define function
+     * @returns {Function} return component constructor
      */
-    E.css = function(cssObj) {
-        var suffix = g.styleSuffix();
-        var css = '';
-        var classes = [];
-        for (var name in cssObj) {
-            css += parseCssObject(name, suffix, cssObj[name]).join('');
-            classes.push(name);
-        }
-
-        var style = document.createElement('style');
-        style.innerHTML = css;
-        document.head.appendChild(style);
-
-        return function(classes) {
-            return classes.split(/[\s]+/).map(function(className) {
-                if (classes.indexOf(className) > -1) {
-                    return className + '__' + suffix;
-                }
-                else {
-                    return className;
-                }
-            }).join(' ');
-        };
-    };
-
     E.defCom = function(localCssFn, def) {
         return function() {
             var lastFn = g.localCssFn;
@@ -510,61 +489,77 @@ Provide minimal but useful functions to manipulating DOM.
         };
     };
 
-    // css helper functions
-    function humpToMinus(str) {
-        return str.replace(/([A-Z])/g, '-$1').toLowerCase();
-    }
+    /**
+     * Create local scope css.
+     */
+    E.css = function(cssObj) {
+        var suffix = g.styleSuffix();
+        var rules = parseCss([''], '', suffix, cssObj);
 
-    function parseCssRule(key, value) {
-        var ruleName = humpToMinus(key);
+        var style = document.createElement('style');
+        style.innerHTML = rules.join('\n');
+        document.head.appendChild(style);
 
-        switch (typeof value) {
-            case 'number':
-            case 'boolean':
-                value = value.toString();
-                // waterfall
-            case 'string':
-                return ruleName + ':' + value + ';';
-            case 'object':
-                var rules = '';
-                for (var name in value) {
-                    rules += ruleName + '-' + parseCssRule(name, value[name]);
-                }
-                return rules;
-            default:
-                return '';
-        }
-    }
+        return function(className) {
+            return className + suffix;
+        };
+    };
 
-    function parseCssObject(name, suffix, obj) {
+    // css helper function
+    function parseCss(parents, rule, suffix, obj) {
         var res = [];
-        var className = humpToMinus(name) + '__' + suffix;
+        var rules = rule.split(/\s*,\s*/); // unwind css rule such as `h1, h2 {}`
 
-        var content = '';
+        // add suffix if the rule has class
+        for (var i = 0; i < rules.length; i++) {
+            if (rules[i][0] === '.') {
+                rules[i] += suffix;
+            }
+        }
+
+        // combine parent rules
+        var currentRules = [];
+        for (var i = 0; i < parents.length; i++) {
+            var prefix = parents[i] + ' ';
+            if (/^\s*$/.test(prefix)) {
+                prefix = '';
+            }
+
+            for (var j = 0; j < rules.length; j++) {
+                if (rules[j][0] === '&') {
+                    currentRules.push(prefix + rules[j].slice(1));
+                }
+                else {
+                    currentRules.push(prefix + rules[j]);
+                }
+            }
+        }
+
+        var ruleContent = '';
+
         for (var key in obj) {
-            if (key[0] === ':') {
-                res.push('.' + className + parseCssObject(key, suffix, obj[key])[0]);
+            var val = obj[key];
+            var type = typeof val;
+            if (type === 'number' || type === 'boolean' || type === 'string') {
+                ruleContent += humpToMinus(key) + ':' + val + ';';
             }
-            else {
-                content += parseCssRule(key, obj[key]);
+            else if (type === 'object') {
+                var subRules = parseCss(currentRules, key, suffix, val);
+                res = res.concat(subRules);
             }
         }
 
-        if (name[0] === ':') {
-            res.push(name + '{' + content + '}');
-        }
-        else {
-            res.push('.' + className + '{' + content + '}');
-        }
-
-        if (res.length > 1) {
-            res.reverse();
+        if (ruleContent) {
+            res.unshift(currentRules.join(',') + '{' + ruleContent + '}');
         }
 
         return res;
     }
-    // end of css helper functions
 
+    function humpToMinus(str) {
+        return str.replace(/([A-Z])/g, '-$1').toLowerCase();
+    }
+    // end of css helper
 
     /**
      * Define a module.

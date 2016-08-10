@@ -238,14 +238,14 @@ You could create local scope CSS(only support no nested class rules):
 
 ```js
 var c = E.css({
-    btn: {
+    '.btn': {
         display: 'block',
         margin: {
             left: 'auto',
             right: 'auto'
         }
     },
-    btnOk: {
+    '.btn-ok': {
         color: 'white',
         backgroundColor: '#2d89ef'
     }

@@ -2,7 +2,7 @@ E.mod('TodoItem', function() {
     'use strict';
 
     var c = E.css({
-        item: {
+        '.item': {
             display: 'block',
             position: 'relative',
             marginBottom: '15px',
@@ -10,12 +10,12 @@ E.mod('TodoItem', function() {
             backgroundColor: 'white',
             boxShadow: 'rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.117647) 0px 1px 4px'
         },
-        text: {
+        '.text': {
             color: '#1a1a1a',
             fontSize: '14px',
             lineHeight: '30px'
         },
-        closeBtn: {
+        '.close-btn': {
             position: 'absolute',
             right: '15px',
             top: '15px',
