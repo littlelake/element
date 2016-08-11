@@ -492,13 +492,22 @@ Provide minimal but useful functions to manipulating DOM.
     /**
      * Create local scope css.
      */
-    E.css = function(cssObj) {
+    E.css = function(cssObj, opts) {
         var suffix = g.styleSuffix();
+        if (opts && opts.global) {
+            suffix = '';
+        }
         var rules = parseCss([''], '', suffix, cssObj);
 
-        var style = document.createElement('style');
-        style.innerHTML = rules.join('\n');
-        document.head.appendChild(style);
+        var style;
+        if (opts && opts.styleEle) {
+            opts.styleEle.innerHTML = rules.join('\n');
+        }
+        else {
+            style = document.createElement('style');
+            style.innerHTML = rules.join('\n');
+            document.head.appendChild(style);
+        }
 
         return function(className) {
             return className + suffix;
