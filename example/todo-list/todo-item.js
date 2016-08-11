@@ -29,23 +29,25 @@ E.mod('TodoItem', function() {
         }
     });
 
-    var TodoItem = E.defCom(c, function(item) {
-        var text;
-        var todoItem = E('li.item', [
-            text = E('span.text', [item.text]),
-            E('button.close-btn', {onClick: remove}, [E.HTML('&times;')])
+    var ele = E.useCss(c);
+
+    function TodoItem(item) {
+        var $text;
+        var $todoItem = ele('li.item', [
+            $text = ele('span.text', [item.text]),
+            ele('button.close-btn', {onClick: remove}, ['&times;'])
         ]);
 
         function remove() {
-            todoItem.ele.remove();
+            $todoItem.remove();
         };
 
-        todoItem.method('getValue', function() {
-            return text.ele.textContent;
+        $todoItem.method('getValue', function() {
+            return $text.text();
         });
 
-        return todoItem;
-    });
+        return $todoItem;
+    }
 
     return TodoItem;
 

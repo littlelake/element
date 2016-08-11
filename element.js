@@ -1,14 +1,21 @@
 /*
-# element.js
-Provide minimal but useful functions to manipulating DOM.
+# Element JS
+
+An easy way for modularization based on jQuery or Zepto.
 */
 
-;(function(window) {
+(function(def) {
+    if (typeof jQuery !== 'undefined') {
+        this.E = def(jQuery);
+    }
+    else if (typeof Zepto !== 'undefined') {
+        this.E = def(Zepto);
+    }
+    else if (typeof module !== 'undefined' && typeof require !== 'undefined') {
+        module.exports = def(require('jquery'));
+    }
+})(function($) {
     'use strict';
-
-    var document = window.document;
-    var Element = window.Element;
-    var CustomEvent = window.CustomEvent;
 
     var g = {
         _suffixCurrentId: 0,
@@ -16,82 +23,55 @@ Provide minimal but useful functions to manipulating DOM.
             this._suffixCurrentId += 1;
             return '__' + this._suffixCurrentId;
         },
-        modules: {},
-        localCssFn: null
+        modules: {}
     };
 
     /**
-     * AdvancedElement constructor wrap.
-     */
-    function E(desc, attrs, children) {
-        return new AdvancedElement(desc, attrs, children);
-    }
-
-    /**
-     * @constructor
-     * @param {string|Element} desc - An element description. Format: <tagName><.class><#id>, such as 'ul.todo-list#my-list'.
+     * Create an jQuery or Zepto object.
+     *
+     * @param {string|Element|jQuery|Zepto} desc - An element description. Format: <tagName><.class><#id>, such as 'ul.todo-list#my-list'.
      * @param {Object} [attrs] - The attrs of element.
      * @param {Array} [children] - The children of element.
+     * @param {Function} [localCssFn] - The function that make local scope css.
+     * @returns {jQuery|Zepto}
      */
-    function AdvancedElement(desc, attrs, children) {
-        if (desc instanceof Element) {
-            this.ele = desc;
-            if (this.ele._methods) {
-                for (var name in this.ele._methods) {
-                    this[name] = this.ele._methods[name];
-                }
-            }
-        }
-        else if (desc instanceof AdvancedElement) {
-            this.ele = desc.ele;
-        }
-        else if (desc[0] === '#') {
-            this.ele = document.getElementById(desc.slice(1));
+    function E(desc, attrs, children, localCssFn) {
+        if (typeof desc !== 'string') {
+            return $(desc);
         }
         else {
-            this.ele = createElement(desc, attrs, children);
-        }
-    }
+            if (attrs instanceof Array) {
+                children = attrs;
+                attrs = null;
+            }
 
-    /**
-     * Create an element.
-     *
-     * @param {string} desc - An element description. Format: <tagName><.class><#id>, such as 'ul.todo-list#my-list'.
-     * @param {Object} [attrs] - The attrs of element.
-     * @param {Array} [children] - The children of element.
-     * @returns {Element}
-     * @private
-     */
-    function createElement(desc, attrs, children) {
-        if (attrs instanceof Array) {
-            children = attrs;
-            attrs = null;
-        }
+            var info = parseElementDesc(desc);
+            var ele = document.createElement(info.tagName);
+            var $ele = $(ele);
+            
+            if (info.id) {
+                $ele.attr('id', info.id);
+            }
+            if (info.classList) {
+                $.each(info.classList, function(i, className) {
+                    if (localCssFn) {
+                        className = localCssFn(className);
+                    }
+                    $ele.addClass(className);
+                });
+            }
 
-        var info = parseElementDesc(desc);
-        var ele = document.createElement(info.name);
+            if (attrs) {
+                setElementAttrs($ele, attrs, localCssFn);
+            }
 
-        if (info.id) {
-            ele.id = info.id;
-        }
-        if (info.classList) {
-            info.classList.forEach(function(cssClass) {
-                if (g.localCssFn) {
-                    cssClass = g.localCssFn(cssClass);
-                }
-                ele.classList.add(cssClass);
-            });
-        }
+            if (children) {
+                var flatChildren = flatArray(children);
+                $ele.append(flatChildren);
+            }
 
-        if (attrs) {
-            setElementAttrs(ele, attrs);
+            return $ele;
         }
-
-        if (children) {
-            setElementChildren(ele, children);
-        }
-
-        return ele;
     }
 
     /**
@@ -108,8 +88,8 @@ Provide minimal but useful functions to manipulating DOM.
     function parseElementDesc(desc) {
         var res = desc.match(/^([\w\d\-]+)((\.[\w\d\-]+)*)(\#[\w\d\-]+)?$/);
 
-        var name = res[1];
-        if (!name) {
+        var tagName = res[1];
+        if (!tagName) {
             throw new Error('Incorrect tag name in description "' + desc + '"');
         }
 
@@ -130,7 +110,7 @@ Provide minimal but useful functions to manipulating DOM.
         }
 
         return {
-            name: name,
+            tagName: tagName,
             classList: classList,
             id: id
         };
@@ -139,69 +119,41 @@ Provide minimal but useful functions to manipulating DOM.
     /**
      * Set element attributes.
      *
-     * @param {Element} ele
+     * @param {jQuery|Zepto} $ele
      * @param {Object} attrs
+     * @param {Function} localCssFn
      * @private
      */
-    function setElementAttrs(ele, attrs) {
+    function setElementAttrs($ele, attrs, localCssFn) {
         if (attrs.data) {
             for (var key in attrs.data) {
-                ele.dataset[key] = attrs.data[key];
+                $ele.data(key, attrs.data[key]);
             }
             delete attrs.data;
         }
 
         if (attrs.class) {
-            attrs.class.split(' ').forEach(function(cssClass) {
-                ele.classList.add(cssClass);
-            });
+            if (localCssFn) {
+                attrs.class = localCssFn(attr.class);
+            }
+            $ele.addClass(attrs.class);
             delete attrs.class;
         }
 
-        if (attrs.style && typeof attrs.style === 'object') {
-            for (var key in attrs.style) {
-                ele.style[key] = attrs.style[key];
-            }
+        if (attrs.style) {
+            $ele.css(attrs.style);
             delete attrs.style;
         }
 
         for (var name in attrs) {
             if (name.indexOf('on') === 0) {
                 var ev = name.slice(2).toLowerCase();
-                ele.addEventListener(ev, attrs[name]);
+                $ele.on(ev, attrs[name]);
             }
             else {
-                ele[name] = attrs[name];
+                $ele.attr(name, attrs[name]);
             }
         }
-    }
-
-    /**
-     * Set element children.
-     *
-     * @param {Element} ele
-     * @param {Array} children
-     * @private
-     */
-    function setElementChildren(ele, children) {
-        var flatChildren = flatArray(children);
-        flatChildren.forEach(function(child) {
-            if (typeof child === 'string') {
-                ele.appendChild(document.createTextNode(child));
-            }
-            else if (typeof child === 'number' || typeof child === 'boolean') {
-                ele.appendChild(document.createTextNode(child.toString()));
-            }
-            else if (child instanceof AdvancedElement) {
-                ele.appendChild(child.ele);
-            }
-            else if (child instanceof Element) {
-                ele.appendChild(child);
-            }
-            else if (child instanceof HTMLNode) {
-                ele.insertAdjacentHTML('beforeend', child.html);
-            }
-        });
     }
 
     /**
@@ -216,9 +168,9 @@ Provide minimal but useful functions to manipulating DOM.
      */
     function flatArray(arr) {
         var res = [];
-        arr.forEach(function(item) {
+        $.each(arr, function(i, item) {
             if (item instanceof Array) {
-                item.forEach(function(subItem) {
+                $.each(item, function(i, subItem) {
                     res.push(subItem);
                 });
             }
@@ -229,263 +181,12 @@ Provide minimal but useful functions to manipulating DOM.
         return res;
     }
 
-
-    // methods
-
     /**
-     * Replace an element.
-     *
-     * @example
-     *  E('#list').replaceWith(E('ul.my-list'));
-     *
-     * @param {Element|AdvancedElement} element
-     * @returns {AdvancedElement}
+     * Make a convenient function to define component.
      */
-    AdvancedElement.prototype.replaceWith = function(element) {
-        if (element instanceof AdvancedElement) {
-            element = element.ele;
-        }
-        this.ele.parentNode.replaceChild(element, this.ele);
-        this.ele = element;
-        return this;
-    };
-
-    /**
-     * Append an element to it's children.
-     *
-     * @example
-     *  E('#list').append(E('li.item'));
-     *
-     * @param {Element|AdvancedElement} element
-     * @returns {AdvancedElement}
-     */
-    AdvancedElement.prototype.append = function(element) {
-        if (element instanceof AdvancedElement) {
-            element = element.ele;
-        }
-        this.ele.appendChild(element);
-        return this;
-    };
-
-    /**
-     * Remove children.
-     *
-     * @example
-     *  // all li that index lower than 3 will be removed
-     *  E('#list').removeChildren(function(li, index) {
-     *      return index < 3;
-     *  });
-     *
-     * @param {Function} fn - filter function
-     * @returns {AdvancedElement}
-     */
-    AdvancedElement.prototype.removeChildren = function(fn) {
-        var ele = this.ele;
-        var removeList = [];
-        for (var i = 0; i < ele.children.length; i++) {
-            var res = fn(ele.children[i], i);
-            if (res) {
-                removeList.push(ele.children[i]);
-            }
-        }
-
-        removeList.forEach(function(child) {
-            ele.removeChild(child);
-        });
-
-        return this;
-    };
-
-    /**
-     * Get index of parentNode.
-     *
-     * @example
-     *  E('#item').index();
-     * @returns {number}
-     */
-    AdvancedElement.prototype.index = function() {
-        return Array.prototype.indexOf.call(this.ele.parentNode.children, this.ele);
-    };
-
-    /**
-     * Show element.
-     *
-     * @example
-     *  E('#id').show();
-     *  E('#id').show('flex');
-     * @param {string} [display] - default value is 'block'
-     * @returns {AdvancedElement}
-     */
-    AdvancedElement.prototype.show = function(display) {
-        if (!display) {
-            display = 'block';
-        }
-        this.ele.style.display = display;
-        return this;
-    };
-
-    /**
-     * Hide element.
-     *
-     * @example
-     *  E('#id').hide();
-     * @returns {AdvancedElement}
-     */
-    AdvancedElement.prototype.hide = function() {
-        this.ele.style.display = 'none';
-        return this;
-    };
-
-    /**
-     * Emit a custom event.
-     *
-     * @example
-     *  E('#id').emit('window.confirm', 'Delete?', function(res) {
-     *      if (res) {
-     *          // do something
-     *      }
-     *  });
-     *
-     * @param {string} event - event name
-     * @param {Any} data
-     * @param {Function} callback
-     */
-    AdvancedElement.prototype.emit = function(event, data, callback) {
-        var ev = new CustomEvent(event, {
-            detail: {
-                data: data,
-                callback: callback
-            },
-            bubbles: true,
-            cancelable: true
-        });
-        this.ele.dispatchEvent(ev);
-    };
-
-    /**
-     * Add custom event handler.
-     *
-     * @example
-     *  E('#id').on('window.confirm', function(data, callback, e) {
-     *      e.stopPropagation();
-     *      res = confirm(data);
-     *      callback(res);
-     *  });
-     *
-     * @param {string} event - event name
-     * @param {Function} handler - event handler
-     */
-    AdvancedElement.prototype.on = function(event, handler) {
-        this.ele.addEventListener(event, function(e) {
-            handler(e.detail.data, e.detail.callback, e);
-        });
-    };
-
-    /**
-     * Add event listener.
-     *
-     * @param {string} event - event name
-     * @param {Function} handler - event handler
-     * @returns {AdvancedElement}
-     */
-    AdvancedElement.prototype.listen = function(event, handler) {
-        this.ele.addEventListener(event, handler);
-        return this;
-    };
-
-    /**
-     * Define method for itself and it's element.
-     *
-     * @example
-     *  var h1 = E('h1', ['hello'])
-     *  h1.method('getContent', function() {
-     *      return this.ele.textContent;
-     *  });
-     *  h1.getContent(); // 'hello'
-     *  h1.ele.getContent(); // 'hello'
-     *
-     * @param {string} name - method name
-     * @param {Function} fn
-     * @returns {AdvancedElement}
-     */
-    AdvancedElement.prototype.method = function(name, fn) {
-        if (this[name] || (this.ele._methods && this.ele._methods[name])) {
-            console.warn(this, 'Already has method [' + name + ']');
-        }
-
-        var self = this;
-
-        this[name] = fn;
-        if (!this.ele._methods) {
-            this.ele._methods = {};
-        }
-        this.ele._methods[name] = function() {
-            return fn.apply(self, arguments);
-        };
-
-        return this;
-    };
-
-    // Utils
-
-    /**
-     * Only use in `E()`
-     *
-     * @example
-     *  E('div', [E.HTML('&times;')]); // <div>×</div>
-     *
-     * @param {string} html - html string
-     * @returns {HTMLNode}
-     */
-    E.HTML = function(html) {
-        return new HTMLNode(html);
-    };
-
-    function HTMLNode(html) {
-        this.html = html;
-    }
-
-    /**
-     * Show elements.
-     *
-     * @param {string} [display]
-     * @param {Array|NodeList|HTMLCollection}
-     */
-    E.show = function(display, collection) {
-        if (typeof display !== 'string') {
-            collection = display;
-            display = 'block';
-        }
-        Array.prototype.forEach.call(collection, function(ele) {
-            E(ele).show(display);
-        });
-    };
-
-    /**
-     * Hide elements.
-     *
-     * @param {Array|NodeList|HTMLCollection}
-     */
-    E.hide = function(collection) {
-        Array.prototype.forEach.call(collection, function(ele) {
-            E(ele).hide();
-        });
-    };
-
-    /**
-     * Define component.
-     *
-     * @param {Function} localCssFn - a function that add suffix to css class
-     * @param {Function} def - component define function
-     * @returns {Function} return component constructor
-     */
-    E.defCom = function(localCssFn, def) {
-        return function() {
-            var lastFn = g.localCssFn;
-            g.localCssFn = localCssFn;
-            var res = def.apply(null, arguments);
-            g.localCssFn = lastFn;
-            return res;
+    E.useCss = function(localCssFn) {
+        return function(desc, attrs, children) {
+            return E(desc, attrs, children, localCssFn);
         };
     };
 
@@ -499,14 +200,11 @@ Provide minimal but useful functions to manipulating DOM.
         }
         var rules = parseCss([''], '', suffix, cssObj);
 
-        var style;
         if (opts && opts.styleEle) {
-            opts.styleEle.innerHTML = rules.join('\n');
+            $(opts.styleEle).html(rules.join('\n'));
         }
         else {
-            style = document.createElement('style');
-            style.innerHTML = rules.join('\n');
-            document.head.appendChild(style);
+            $('<style></style>').html(rules.join('\n')).appendTo(document.head);
         }
 
         return function(className) {
@@ -573,6 +271,7 @@ Provide minimal but useful functions to manipulating DOM.
     }
     // end of css helper
 
+
     /**
      * Define a module.
      * @example
@@ -615,7 +314,7 @@ Provide minimal but useful functions to manipulating DOM.
         }
         else {
             if (mod.deps.length > 0) {
-                var deps = mod.deps.map(run);
+                var deps = $.map(mod.deps, run);
                 mod.res = mod.def.apply(null, deps);
                 mod.init = true;
             }
@@ -627,7 +326,25 @@ Provide minimal but useful functions to manipulating DOM.
         }
     };
 
-    window.E = E;
-    window.AdvancedElement = AdvancedElement;
+    // define method extend
+    $.fn.method = function(name, fn) {
+        var methods = this.get(0).__methods__;
+        if (!methods) {
+            methods = {};
+            this.get(0).__methods__ = methods;
+        }
+        if (fn) {
+            var self = this;
+            methods[name] = function() {
+                return fn.apply(self, arguments);
+            };
+        }
+        else {
+            return methods[name];
+        }
+    };
 
-})(window);
+    return E;
+
+});
+

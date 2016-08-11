@@ -41,25 +41,27 @@ E.mod('TodoList', [
         }
     });
 
-    var TodoList = E.defCom(c, function(list) {
-        var todoList, input;
-        var container = E('div.container', [
-            todoList = E('ul.todo-list', [
-                list.map(TodoItem)
+    var ele = E.useCss(c);
+
+    function TodoList(list) {
+        var $todoList, $input;
+        var $container = ele('div.container', [
+            $todoList = ele('ul.todo-list', [
+                $.map(list, TodoItem)
             ]),
-            E('div.operate-panel', [
-                input = E('input.input', {type: 'text', onKeydown: onKeydown}),
-                E('button.add-btn', {onClick: addItem}, ['Add'])
+            ele('div.operate-panel', [
+                $input = ele('input.input', {type: 'text', onKeydown: onKeydown}),
+                ele('button.add-btn', {onClick: addItem}, ['Add'])
             ])
         ]);
 
         function addItem() {
-            var val = input.ele.value;
+            var val = $input.val();
             if (val == '') {
                 return;
             }
-            todoList.append(TodoItem({text: val}));
-            input.ele.value = '';
+            $todoList.append(TodoItem({text: val}));
+            $input.val('');
         }
 
         function onKeydown(e) {
@@ -68,14 +70,14 @@ E.mod('TodoList', [
             }
         }
 
-        container.method('getData', function() {
-            return Array.prototype.map.call(todoList.ele.children, function(child) {
-                return {text: E(child).getValue()};
-            });
+        $container.method('getData', function() {
+            return $todoList.children().map(function() {
+                return $(this).method('getValue')();
+            }).get();
         });
 
-        return container;
-    });
+        return $container;
+    }
 
     return TodoList;
 
