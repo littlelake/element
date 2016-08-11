@@ -520,14 +520,17 @@ Provide minimal but useful functions to manipulating DOM.
         // combine parent rules
         var currentRules = [];
         for (var i = 0; i < parents.length; i++) {
-            var prefix = parents[i] + ' ';
-            if (/^\s*$/.test(prefix)) {
+            var prefix;
+            if (parents[i]) {
+                prefix = parents[i] + ' ';
+            }
+            else {
                 prefix = '';
             }
 
             for (var j = 0; j < rules.length; j++) {
                 if (rules[j][0] === '&') {
-                    currentRules.push(prefix + rules[j].slice(1));
+                    currentRules.push(parents[i] + rules[j].slice(1));
                 }
                 else {
                     currentRules.push(prefix + rules[j]);
