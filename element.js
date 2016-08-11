@@ -207,8 +207,10 @@ An easy way for modularization based on jQuery or Zepto.
             $('<style></style>').html(rules.join('\n')).appendTo(document.head);
         }
 
-        return function(className) {
-            return className + suffix;
+        return function(classes) {
+            return $.map(classes.split(/\s+/), function(className) {
+                return className + suffix;
+            }).join(' ');
         };
     };
 

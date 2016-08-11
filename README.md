@@ -22,7 +22,7 @@ E(desc, attrs, children)
 
 * __desc__ : string - An element description. Format: `<tagName><.class><#id>`, such as 'ul.todo-list#my-list'
 * __attrs__ : Object - The attrs
-* __children__ : `Array<AdvancedElement|Element|Array<AdvancedElement|Element>>` - The children of element.
+* __children__ : `Array<jQuery|Zepto|Element|Array<jQuery|Zepto|Element>>` - The children of element.
 
 __Notice__ : `E()` will return an instance of `jQuery` or `Zepto`.
 
@@ -97,13 +97,13 @@ var c = E.css({
     }
 });
 
-var btn = E('button', {class: c('btn btn-ok')}, ['ok']);
-document.body.appendChild(btn.ele);
+var $btn = E('button', {class: c('btn btn-ok')}, ['ok']);
+$(document.body).append($btn);
 
 // or:
 var ele = E.useCss(c);
-var btn = ele('button.btn.btn-ok', ['ok']);
-document.body.appendChild(btn.ele);
+var $btn = ele('button.btn.btn-ok', ['ok']);
+$(document.body).append($btn);
 
 // ElementJS will append style tag to head and add suffix:
 /*
@@ -111,7 +111,8 @@ document.body.appendChild(btn.ele);
 <head>
     ...
     <style>
-        .btn__1{display:block;margin-left:auto;margin-right:auto;}.btn-ok__1{color:white;background-color:#2d89ef;}
+        .btn__1{display:block;margin-left:auto;margin-right:auto;}
+        .btn-ok__1{color:white;background-color:#2d89ef;}
     </style>
 </head>
 <body>
