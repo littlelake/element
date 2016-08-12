@@ -72,7 +72,7 @@ E.mod('TodoList', [
 
         $container.method('getData', function() {
             return $todoList.children().map(function() {
-                return $(this).method('getValue')();
+                return $(this).method().getValue();
             }).get();
         });
 

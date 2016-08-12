@@ -6,7 +6,7 @@ E.mod('app', [
     var $todoList = TodoList([{text: 'Item A'}, {text: 'Item B'}]);
     $('#todo-list').replaceWith($todoList);
     $('#log-btn').click(function() {
-        console.log($todoList.method('getData')());
+        console.log($todoList.method().getData());
     });
 });
 

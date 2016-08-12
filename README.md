@@ -68,14 +68,14 @@ E.run('main'); // 'Hello, world!'
 ```
 
 ## Define method
-Define method or call method:
+Define or get method:
 
 ```js
 var $h1 = E('h1', ['hello'])
 $h1.method('getContent', function() {
     return this.text();
 });
-$h1.method('getContent')(); // 'hello'
+$h1.method().getContent(); // 'hello'
 ```
 
 

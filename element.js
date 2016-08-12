@@ -335,14 +335,14 @@ An easy way for modularization based on jQuery or Zepto.
             methods = {};
             this.get(0).__methods__ = methods;
         }
-        if (fn) {
+        if (name && fn) {
             var self = this;
             methods[name] = function() {
                 return fn.apply(self, arguments);
             };
         }
         else {
-            return methods[name];
+            return methods;
         }
     };
 
