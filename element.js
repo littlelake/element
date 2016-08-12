@@ -132,12 +132,12 @@ An easy way for modularization based on jQuery or Zepto.
             delete attrs.data;
         }
 
-        if (attrs.class) {
+        if (attrs.css) {
             if (localCssFn) {
-                attrs.class = localCssFn(attr.class);
+                attrs.css = localCssFn(attrs.css);
             }
-            $ele.addClass(attrs.class);
-            delete attrs.class;
+            $ele.addClass(attrs.css);
+            delete attrs.css;
         }
 
         if (attrs.style) {

@@ -97,7 +97,7 @@ var c = E.css({
     }
 });
 
-var $btn = E('button', {class: c('btn btn-ok')}, ['ok']);
+var $btn = E('button', {css: c('btn btn-ok')}, ['ok']);
 $(document.body).append($btn);
 
 // or:
