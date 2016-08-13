@@ -96,7 +96,7 @@ An easy way for modularization based on jQuery or Zepto.
         var classStr = res[2];
         var classList;
         if (classStr) {
-            classList = classStr.split('.').filter(function(item) {
+            classList = $.grep(classStr.split('.'), function(item) {
                 return /^[\s]*$/.test(item) === false;
             });
         }
@@ -200,12 +200,7 @@ An easy way for modularization based on jQuery or Zepto.
         }
         var rules = parseCss([''], '', suffix, cssObj);
 
-        if (opts && opts.styleEle) {
-            $(opts.styleEle).html(rules.join('\n'));
-        }
-        else {
-            $('<style></style>').html(rules.join('\n')).appendTo(document.head);
-        }
+        addCss(rules.join('\n'), opts && opts.global);
 
         return function(classes) {
             return $.map(classes.split(/\s+/), function(className) {
@@ -270,6 +265,24 @@ An easy way for modularization based on jQuery or Zepto.
 
     function humpToMinus(str) {
         return str.replace(/([A-Z])/g, '-$1').toLowerCase();
+    }
+
+    function addCss(css, global) {
+        var $style = $('<style type="text/css"></style>');
+        try {
+            $style.append(css);
+        }
+        catch (e) {
+            // fix ie bug
+            $style[0].styleSheet.cssText = css;
+        }
+
+        if (global) {
+            $style.prependTo('head');
+        }
+        else {
+            $style.appendTo('head');
+        }
     }
     // end of css helper
 
