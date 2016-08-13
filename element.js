@@ -141,7 +141,13 @@ An easy way for modularization based on jQuery or Zepto.
         }
 
         if (attrs.style) {
-            $ele.css(attrs.style);
+            if (typeof attrs.style === 'string') {
+                $ele.attr('style', attrs.style);
+            }
+            else {
+                $ele.css(attrs.style);
+            }
+
             delete attrs.style;
         }
 
