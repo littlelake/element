@@ -33,7 +33,7 @@ E('input', {type: 'number'}) // [<input type="number">]
 E('h1', ['hello']) // [<h1>hello</h1>]
 
 /*
-[<ul id="ce-f" class="list my-list" title="ul" style="font-size: 18px; background: rgb(238, 238, 238);">
+[<ul id="ce-f" class="list my-list" title="ul" style="font-size:18px; background:#eee">
     <li class="item" style="background-color: rgb(204, 204, 204);">Item A</li>
     <li class="item" style="color: white; background-color: rgb(45, 137, 239);">Item B</li>
 </ul>]
