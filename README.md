@@ -8,6 +8,7 @@ An easy way for modularization based on jQuery or Zepto.
 * Support local scope CSS.
 * No need to build, just include module files even unsorted.
 * Easy to deploy, just concat and compress files.
+* Support IE 8+ and modern browsers, such as latest version Chrome, Firefox, Safari, Edge.
 
 ## Contents
 * [Create Element](#create-element)
